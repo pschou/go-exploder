@@ -18,7 +18,6 @@ require (
 )
 
 require (
-	github.com/DataDog/zstd v1.4.8 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/bodgit/plumbing v1.3.0 // indirect
 	github.com/bodgit/windows v1.0.1 // indirect
