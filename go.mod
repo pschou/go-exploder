@@ -33,3 +33,5 @@ require (
 	golang.org/x/text v0.5.0 // indirect
 	pault.ag/go/topsort v0.0.0-20160530003732-f98d2ad46e1a // indirect
 )
+
+replace pault.ag/go/debian => github.com/pschou/go-debian v0.12.1-0.20220712183321-10c93101ec38
