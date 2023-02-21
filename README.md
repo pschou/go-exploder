@@ -19,11 +19,24 @@ Archive formats supported:
 
 # Example
 
+Here is an example of an infinite explosion.  To get a finite number of layers extracted, set -1 to a value like 2 or 3.
+
 ```golang
-fh, err := os.Open("data.zip")
-stat := fh.Stat()
-err = Explode(filePath string, in io.Reader, size int64, -1)
+  fh, err := os.Open("testdata.zip") // Open a file
+  if err != nil {
+    log.Fatal(err)
+  }
+  stat, err := fh.Stat() // Stat the file to get the size
+  if err != nil {
+    log.Fatal(err)
+  }
+
+  outputPath := "output/"
+
+  err = exploder.Explode(outputPath, fh, stat.Size(), -1)
 ```
+
+After this has processed, a folder named output will be created with layers upon layers of files in them.
 
 # Documentation
 
