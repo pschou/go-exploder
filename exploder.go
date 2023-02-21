@@ -60,7 +60,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 			fmt.Println("Copy err:", err)
 		}
 		if size >= 0 && n != size {
-			log.Fatal("Reader.MaxDepth: copied file size does not match")
+			log.Error("Reader.MaxDepth: copied file size does not match")
 		}
 		return
 	}
@@ -88,7 +88,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		tr.Pipe()
 		n, err = writeFile(filePath, tr)
 		if size >= 0 && n != size {
-			log.Fatal("copied file size,", n, ", and expected,", size, ", do not match")
+			log.Error("copied file size,", n, ", and expected,", size, ", do not match")
 		}
 	case 1:
 		// We found only one potential archive match, go ahead and explode it.
@@ -154,6 +154,7 @@ func writeFile(filePath string, in io.Reader) (int64, error) {
 	if Debug {
 		fmt.Println("Writing out file", filePath, "in", dir)
 	}
+	fmt.Println("calling ensure dir", dir)
 	ensureDir(dir)
 	out, err := os.Create(filePath)
 	if err != nil {
