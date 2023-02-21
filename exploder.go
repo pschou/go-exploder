@@ -39,6 +39,7 @@ type formatTest struct {
 	Type string
 }
 
+// A slice with all the formats checking in as available, see the init() in every go file.
 var formatTests = []formatTest{}
 
 var Debug bool
