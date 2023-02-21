@@ -41,7 +41,7 @@ func readBzip2(tr *tease.Reader, size int64) (Archive, error) {
 
 	// special case if we compressed an empty file
 	if !(n == 0 && err == io.EOF) && err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading bzip2", err)
 		}
 		return nil, err

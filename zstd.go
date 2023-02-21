@@ -35,7 +35,7 @@ func readZstd(tr *tease.Reader, size int64) (Archive, error) {
 	tr.Seek(0, io.SeekStart)
 	r, err := zstd.NewReader(tr)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading zstd", err)
 		}
 		return nil, err
@@ -47,7 +47,7 @@ func readZstd(tr *tease.Reader, size int64) (Archive, error) {
 
 	// special case if we compressed an empty file
 	if !(n == 0 && err == io.EOF) && err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading zstd", err)
 		}
 		return nil, err

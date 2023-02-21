@@ -17,6 +17,16 @@ Archive formats supported:
   - zip
   - zstd
 
+# Example
+
+```golang
+fh, err := os.Open("data.zip")
+stat := fh.Stat()
+err = Explode(filePath string, in io.Reader, size int64, -1)
+```
+
+# Documentation
+
 Documentation and usage can be found at:
 
 https://pkg.go.dev/github.com/pschou/go-exploder

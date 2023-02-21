@@ -56,7 +56,7 @@ func readStandardGzip(tr *tease.Reader, size int64) (Archive, error) {
 	br := bufio.NewReader(tr)
 	gzr, err := gzip.NewReader(br)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading gzip", err)
 		}
 		return nil, err
@@ -96,7 +96,7 @@ func readBlockGzip(tr *tease.Reader, size int64) (Archive, error) {
 	br := bufio.NewReader(tr)
 	gzr, err := bgzf.NewReader(br, 1)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading gzip", err)
 		}
 		return nil, err
@@ -152,7 +152,7 @@ func (c *GzipFile) Close() {
 }
 
 func (i *GzipFile) Next() (path, name string, r io.Reader, err error) {
-	if *debug {
+	if Debug {
 		fmt.Println("next() called")
 	}
 	if i.count == 0 {
@@ -166,13 +166,13 @@ func (i *GzipFile) Next() (path, name string, r io.Reader, err error) {
 		return "", "", nil, io.EOF
 	}
 
-	if *debug {
+	if Debug {
 		fmt.Println("dumping out rest of file")
 	}
 
 	io.Copy(ioutil.Discard, i.gz_reader)
 
-	if *debug {
+	if Debug {
 		fmt.Println("gzip reset")
 	}
 	err = i.gz_reader.Reset(i.buf_reader)

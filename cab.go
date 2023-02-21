@@ -39,7 +39,7 @@ func readCAB(tr *tease.Reader, size int64) (Archive, error) {
 	tr.Seek(0, io.SeekStart)
 	cab, err := cabfile.New(tr)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading cab", err)
 		}
 		return nil, err

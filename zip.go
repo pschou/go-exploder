@@ -39,7 +39,7 @@ func readZip(tr *tease.Reader, size int64) (Archive, error) {
 	}
 	zr, err := zip.NewReader(tr, size)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading zip", err)
 		}
 		return nil, err

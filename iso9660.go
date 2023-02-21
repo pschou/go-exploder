@@ -135,7 +135,7 @@ func (i *iso9660File) Next() (path, name string, r io.Reader, err error) {
 	//i.files = i.files[1:]
 	var n int64
 	n, err = i.reader.Seek(f.DataOffset(), io.SeekStart)
-	if *debug {
+	if Debug {
 		fmt.Println(f.DataOffset(), f.Name(), f.Size(), n)
 	}
 	if err != nil {

@@ -39,7 +39,7 @@ func readRAR(tr *tease.Reader, size int64) (Archive, error) {
 	}
 	zr, err := rardecode.NewReader(tr, "")
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading rar", err)
 		}
 		return nil, err

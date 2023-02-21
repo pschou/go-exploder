@@ -41,8 +41,7 @@ type formatTest struct {
 
 var formatTests = []formatTest{}
 
-var debug *bool
-var maxRec *int
+var Debug bool
 
 // Explode the archive by looking at the file MagicBytes and then try that
 // archive reader so as to extract layers of archives all at once.
@@ -56,7 +55,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		// If we have reached the max depth, print out any file / archive without testing
 		var n int64
 		n, err = writeFile(filePath, in)
-		if err != nil && *debug {
+		if err != nil && Debug {
 			fmt.Println("Copy err:", err)
 		}
 		if size >= 0 && n != size {
@@ -80,7 +79,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 
 	switch len(matches) {
 	case 0:
-		if *debug {
+		if Debug {
 			fmt.Println("no archive match for", filePath)
 		}
 		var n int64
@@ -94,7 +93,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		// We found only one potential archive match, go ahead and explode it.
 		tr.Seek(0, io.SeekStart)
 		ft := matches[0]
-		if *debug {
+		if Debug {
 			fmt.Println("archive match for", filePath, "type", ft.Type)
 		}
 		if arch, err := ft.Read(tr, size); err == nil {
@@ -127,12 +126,12 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 			tr.Seek(0, io.SeekStart)
 			tr.Pipe()
 			_, err = writeFile(filePath, tr)
-			if err != nil && *debug {
+			if err != nil && Debug {
 				fmt.Println("Copy err:", err)
 			}
 		}
 	default:
-		if *debug {
+		if Debug {
 			fmt.Println("Archive", filePath, "matches multiple formats, what to do?")
 			for _, ft := range matches {
 				fmt.Println("  ", ft.Type)
@@ -141,7 +140,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		tr.Seek(0, io.SeekStart)
 		tr.Pipe()
 		_, err = writeFile(filePath, tr)
-		if err != nil && *debug {
+		if err != nil && Debug {
 			fmt.Println("Copy err:", err)
 		}
 	}
@@ -151,7 +150,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 
 func writeFile(filePath string, in io.Reader) (int64, error) {
 	dir, _ := path.Split(filePath)
-	if *debug {
+	if Debug {
 		fmt.Println("Writing out file", filePath, "in", dir)
 	}
 	ensureDir(dir)

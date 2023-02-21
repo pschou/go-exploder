@@ -38,7 +38,7 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 	ar := tar.NewReader(tr)
 	hdr, err := ar.Next()
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading tar", err)
 		}
 		return nil, err

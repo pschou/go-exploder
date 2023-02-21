@@ -42,7 +42,7 @@ func readRPM(tr *tease.Reader, size int64) (Archive, error) {
 	// Read the package headers
 	pkg, err := rpm.Read(tr)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading rpm", err)
 		}
 		return nil, err

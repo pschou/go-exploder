@@ -35,7 +35,7 @@ func readXZ(tr *tease.Reader, size int64) (Archive, error) {
 	tr.Seek(0, io.SeekStart)
 	r, err := xz.NewReader(tr)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading gzip", err)
 		}
 		return nil, err

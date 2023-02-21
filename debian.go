@@ -37,7 +37,7 @@ func readDEB(tr *tease.Reader, size int64) (Archive, error) {
 
 	ar, err := deb.LoadAr(tr)
 	if err != nil {
-		if *debug {
+		if Debug {
 			fmt.Println("Error reading debian", err)
 		}
 		return nil, err
