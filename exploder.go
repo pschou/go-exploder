@@ -154,7 +154,6 @@ func writeFile(filePath string, in io.Reader) (int64, error) {
 	if Debug {
 		fmt.Println("Writing out file", filePath, "in", dir)
 	}
-	fmt.Println("calling ensure dir", dir)
 	ensureDir(dir)
 	out, err := os.Create(filePath)
 	if err != nil {
