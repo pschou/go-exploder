@@ -87,6 +87,9 @@ func (i *DEBFile) Next() (dir, name string, r io.Reader, err error) {
 				return "", "", nil, err
 			}
 		}
+		if ar_ent == nil {
+			return "", "", nil, fmt.Errorf("Invalid DEB file")
+		}
 		if ar_ent.IsTarfile() {
 			break
 		}
