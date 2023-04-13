@@ -39,6 +39,7 @@ type formatTest struct {
 	Type string
 }
 
+// A slice with all the formats checking in as available, see the init() in every go file.
 var formatTests = []formatTest{}
 
 var Debug bool
@@ -59,7 +60,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 			fmt.Println("Copy err:", err)
 		}
 		if size >= 0 && n != size {
-			log.Fatal("Reader.MaxDepth: copied file size does not match")
+			log.Println("Reader.MaxDepth: copied file size does not match")
 		}
 		return
 	}
@@ -87,7 +88,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		tr.Pipe()
 		n, err = writeFile(filePath, tr)
 		if size >= 0 && n != size {
-			log.Fatal("copied file size,", n, ", and expected,", size, ", do not match")
+			log.Println("copied file size,", n, ", and expected,", size, ", do not match")
 		}
 	case 1:
 		// We found only one potential archive match, go ahead and explode it.
