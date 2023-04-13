@@ -2,7 +2,6 @@ package exploder
 
 import (
 	"archive/tar"
-	"bytes"
 	"fmt"
 	"io"
 	"path"
@@ -27,14 +26,14 @@ func init() {
 }
 
 func testTar(tr *tease.Reader, _ string) bool {
-	tr.Seek(257, io.SeekStart)
-	buf := make([]byte, 5)
-	tr.Read(buf)
+	ar := tar.NewReader(tr)
+	_, err := ar.Next()
 	tr.Seek(0, io.SeekStart)
-	return bytes.Compare(buf, []byte{0x75, 0x73, 0x74, 0x61, 0x72}) == 0
+	return err == nil
 }
 
 func readTar(tr *tease.Reader, size int64) (Archive, error) {
+	tr.Seek(0, io.SeekStart)
 	ar := tar.NewReader(tr)
 	hdr, err := ar.Next()
 	if err != nil {
@@ -51,7 +50,6 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 		hdr:      hdr,
 	}
 
-	tr.Seek(0, io.SeekStart)
 	tr.Pipe()
 	return &ret, nil
 }
