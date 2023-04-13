@@ -27,7 +27,7 @@ func init() {
 	})
 }
 
-func testCAB(tr *tease.Reader) bool {
+func testCAB(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 4)
 	tr.Read(buf)

@@ -34,7 +34,7 @@ type Archive interface {
 
 // Interface to test known file formats
 type formatTest struct {
-	Test func(*tease.Reader) bool
+	Test func(*tease.Reader, string) bool
 	Read func(*tease.Reader, int64) (Archive, error)
 	Type string
 }
@@ -70,7 +70,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 	matches := []formatTest{}
 
 	for _, ft := range formatTests {
-		if ft.Test(tr) {
+		if ft.Test(tr, filePath) {
 			matches = append(matches, ft)
 		}
 	}

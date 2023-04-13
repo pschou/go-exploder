@@ -24,7 +24,7 @@ func init() {
 	})
 }
 
-func testZip(tr *tease.Reader) bool {
+func testZip(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 2)
 	tr.Read(buf)

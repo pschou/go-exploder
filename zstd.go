@@ -23,7 +23,7 @@ func init() {
 	})
 }
 
-func testZstd(tr *tease.Reader) bool {
+func testZstd(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 4)
 	tr.Read(buf)

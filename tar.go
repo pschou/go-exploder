@@ -26,7 +26,7 @@ func init() {
 	})
 }
 
-func testTar(tr *tease.Reader) bool {
+func testTar(tr *tease.Reader, _ string) bool {
 	tr.Seek(257, io.SeekStart)
 	buf := make([]byte, 5)
 	tr.Read(buf)

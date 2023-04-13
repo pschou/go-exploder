@@ -28,7 +28,7 @@ func init() {
 	})
 }
 
-func testISO9660(tr *tease.Reader) bool {
+func testISO9660(tr *tease.Reader, _ string) bool {
 	buf := make([]byte, 5)
 	sp, err := tr.Seek(32769, io.SeekStart)
 	if err != nil || sp != 32769 {

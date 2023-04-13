@@ -29,7 +29,7 @@ func init() {
 	})
 }
 
-func testRPM(tr *tease.Reader) bool {
+func testRPM(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 4)
 	tr.Read(buf)

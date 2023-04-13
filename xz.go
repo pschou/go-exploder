@@ -23,7 +23,7 @@ func init() {
 	})
 }
 
-func testXZ(tr *tease.Reader) bool {
+func testXZ(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 6)
 	tr.Read(buf)
