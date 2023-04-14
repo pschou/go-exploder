@@ -14,7 +14,7 @@ Archive formats supported:
   - rpm
   - tar
   - xz
-  - zip
+  - zip / jar
   - zstd
 
 # Example
