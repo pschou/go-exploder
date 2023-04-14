@@ -53,6 +53,13 @@ var Debug bool
 // tgz are actually two layers, a gzip on the first and a tar on the second.
 //
 // One must provide an io.Reader and the Size of provided reader for extraction.
+//
+// Important:  If one is reading from a slow media source (like a disk), a bufio.Buffer
+// will help performance.  Something like this:
+//
+//   fh, err := os.Open("myArchive")
+//   stat, _ := fh.Stat()
+//   err = exploder.Explode(data, bufio.NewReader(file), stat.Size(), -1)
 func Explode(filePath string, in io.Reader, size int64, recursion int) (err error) {
 	if recursion == 0 {
 		// If we have reached the max depth, print out any file / archive without testing
