@@ -45,7 +45,6 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	fmt.Println("returning size", hdr.Size, hdr)
 	ret := TarFile{
 		a_reader: ar,
 		eof:      false,
