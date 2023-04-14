@@ -70,22 +70,16 @@ func readLzma(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *LzmaFile) Type() string {
-	return "lzma"
-}
+func (i *LzmaFile) Type() string { return "lzma" }
+func (i *LzmaFile) IsEOF() bool  { return i.eof }
+func (c *LzmaFile) Close()       {}
 
-func (i *LzmaFile) IsEOF() bool {
-	return i.eof
-}
-
-func (c *LzmaFile) Close() {
-}
-
-func (i *LzmaFile) Next() (path, name string, r io.Reader, err error) {
+func (i *LzmaFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if i.count == 0 {
 		i.count = 1
 		i.eof = true
-		return ".", "pt_1", i.z_reader, nil
+		return ".", "pt_1", i.z_reader, -1, nil
 	}
-	return "", "", nil, io.EOF
+	err = io.EOF
+	return
 }

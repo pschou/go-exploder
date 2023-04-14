@@ -19,13 +19,15 @@ type TarFile struct {
 
 func init() {
 	formatTests = append(formatTests, formatTest{
-		Test: testTar,
-		Read: readTar,
-		Type: "tar",
+		Test:     testTar,
+		Read:     readTar,
+		Type:     "tar",
+		NeedSize: false,
 	})
 }
 
 func testTar(tr *tease.Reader, _ string) bool {
+	tr.Seek(0, io.SeekStart)
 	ar := tar.NewReader(tr)
 	_, err := ar.Next()
 	tr.Seek(0, io.SeekStart)
@@ -43,6 +45,7 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
+	fmt.Println("returning size", hdr.Size, hdr)
 	ret := TarFile{
 		a_reader: ar,
 		eof:      false,
@@ -54,13 +57,8 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *TarFile) Type() string {
-	return "tar"
-}
-
-func (i *TarFile) IsEOF() bool {
-	return i.eof
-}
+func (i *TarFile) Type() string { return "tar" }
+func (i *TarFile) IsEOF() bool  { return i.eof }
 
 func (c *TarFile) Close() {
 	//if c.z_reader != nil {
@@ -68,7 +66,7 @@ func (c *TarFile) Close() {
 	//}
 }
 
-func (i *TarFile) Next() (dir, name string, r io.Reader, err error) {
+func (i *TarFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *tar.Header
 	for {
 		if i.hdr != nil {
@@ -77,7 +75,7 @@ func (i *TarFile) Next() (dir, name string, r io.Reader, err error) {
 		} else {
 			hdr, err = i.a_reader.Next()
 			if err != nil {
-				return "", "", nil, io.EOF
+				return "", "", nil, 0, io.EOF
 			}
 		}
 		if hdr.Typeflag == tar.TypeReg {
@@ -85,6 +83,7 @@ func (i *TarFile) Next() (dir, name string, r io.Reader, err error) {
 		}
 	}
 	r = i.a_reader
+	size = hdr.Size
 	dir, name = path.Split(hdr.Name)
 	//fmt.Println("returning", dir, name, r, err)
 	return

@@ -102,20 +102,15 @@ func readISO9660(tr *tease.Reader, size int64) (Archive, error) {
 
 }
 
-func (i *iso9660File) Type() string {
-	return "iso9660"
-}
+func (i *iso9660File) Type() string { return "iso9660" }
+func (i *iso9660File) IsEOF() bool  { return i.i_file >= len(i.files) }
 func (i *iso9660File) Close() {
 	if i.reader != nil {
 		i.reader.Close()
 	}
 }
 
-func (i *iso9660File) IsEOF() bool {
-	return i.i_file >= len(i.files)
-}
-
-func (i *iso9660File) Next() (path, name string, r io.Reader, err error) {
+func (i *iso9660File) Next() (path, name string, r io.Reader, size int64, err error) {
 	if i.i_file >= len(i.files) {
 		err = io.EOF
 		return
@@ -143,6 +138,7 @@ func (i *iso9660File) Next() (path, name string, r io.Reader, err error) {
 	}
 	path = i.fileToPath[f]
 	name = f.Name()
+	size = f.Size()
 	//fmt.Println("  limits set:", f.DataOffset(), f.Size())
 	r = io.LimitReader(i.reader, f.Size())
 	return

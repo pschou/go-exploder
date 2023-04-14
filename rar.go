@@ -60,21 +60,15 @@ func readRAR(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *RARFile) Type() string {
-	return "rar"
-}
-
-func (i *RARFile) IsEOF() bool {
-	return i.eof
-}
-
+func (i *RARFile) Type() string { return "rar" }
+func (i *RARFile) IsEOF() bool  { return i.eof }
 func (c *RARFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *RARFile) Next() (dir, name string, r io.Reader, err error) {
+func (i *RARFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *rardecode.FileHeader
 	for {
 		if i.hdr != nil {
@@ -83,7 +77,7 @@ func (i *RARFile) Next() (dir, name string, r io.Reader, err error) {
 		} else {
 			hdr, err = i.z_reader.Next()
 			if err != nil {
-				return "", "", nil, err
+				return
 			}
 		}
 		if !hdr.IsDir {
@@ -92,6 +86,7 @@ func (i *RARFile) Next() (dir, name string, r io.Reader, err error) {
 	}
 
 	r = i.z_reader
+	size = hdr.UnPackedSize
 	dir, name = path.Split(hdr.Name)
 	return
 }

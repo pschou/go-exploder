@@ -15,6 +15,7 @@
 package exploder
 
 import (
+	"bufio"
 	"fmt"
 	"io"
 	"log"
@@ -26,7 +27,7 @@ import (
 
 // Interface in which archives can be interfaced with directly
 type Archive interface {
-	Next() (name, path string, r io.Reader, err error)
+	Next() (name, path string, r io.Reader, size int64, err error)
 	IsEOF() bool
 	Close()
 	Type() string
@@ -34,9 +35,10 @@ type Archive interface {
 
 // Interface to test known file formats
 type formatTest struct {
-	Test func(*tease.Reader, string) bool
-	Read func(*tease.Reader, int64) (Archive, error)
-	Type string
+	Test     func(*tease.Reader, string) bool
+	Read     func(*tease.Reader, int64) (Archive, error)
+	NeedSize bool
+	Type     string
 }
 
 // A slice with all the formats checking in as available, see the init() in every go file.
@@ -97,6 +99,25 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		if Debug {
 			fmt.Println("archive match for", filePath, "type", ft.Type)
 		}
+		if ft.NeedSize && size < 0 {
+			if Debug {
+				fmt.Println("***creating temp file***")
+			}
+			f, err := os.CreateTemp("", "exploder_zip.*.zip")
+			if err != nil {
+				return err
+			}
+			defer func() {
+				fname := f.Name()
+				f.Close()
+				os.Remove(fname) // clean up
+			}()
+			tr.Pipe()
+			size, err = io.Copy(f, tr)
+			f.Seek(0, io.SeekStart)
+			tr = tease.NewReader(bufio.NewReader(f))
+		}
+
 		if arch, err := ft.Read(tr, size); err == nil {
 			if err != nil {
 				fmt.Println("Read test failed for", arch.Type(), "file", filePath)
@@ -108,8 +129,7 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 			}
 			//defer arch.Close()
 			for !arch.IsEOF() {
-				a_dir, a_file, r, err := arch.Next()
-				to_read := int64(-1)
+				a_dir, a_file, r, to_read, err := arch.Next()
 				if lr, ok := (r).(*io.LimitedReader); ok {
 					to_read = lr.N
 				}

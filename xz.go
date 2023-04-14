@@ -50,22 +50,16 @@ func readXZ(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *XZFile) Type() string {
-	return "xz"
-}
+func (i *XZFile) Type() string { return "xz" }
+func (i *XZFile) IsEOF() bool  { return i.eof }
+func (c *XZFile) Close()       {}
 
-func (i *XZFile) IsEOF() bool {
-	return i.eof
-}
-
-func (c *XZFile) Close() {
-}
-
-func (i *XZFile) Next() (path, name string, r io.Reader, err error) {
+func (i *XZFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if i.count == 0 {
 		i.count = 1
 		i.eof = true
-		return ".", "pt_1", i.z_reader, nil
+		return ".", "pt_1", i.z_reader, -1, nil
 	}
-	return "", "", nil, io.EOF
+	err = io.EOF
+	return
 }

@@ -25,9 +25,10 @@ type GzipFile struct {
 
 func init() {
 	formatTests = append(formatTests, formatTest{
-		Test: testGzip,
-		Read: readGzip,
-		Type: "gzip / bgzf / apk",
+		Test:     testGzip,
+		Read:     readGzip,
+		Type:     "gzip / bgzf / apk",
+		NeedSize: false,
 	})
 }
 
@@ -131,14 +132,8 @@ func readBlockGzip(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *GzipFile) Type() string {
-	return i.gz_type
-}
-
-func (i *GzipFile) IsEOF() bool {
-	return i.eof
-}
-
+func (i *GzipFile) Type() string { return i.gz_type }
+func (i *GzipFile) IsEOF() bool  { return i.eof }
 func (c *GzipFile) Close() {
 	if c.buf_reader != nil {
 		c.buf_reader.Reset(nil)
@@ -151,19 +146,19 @@ func (c *GzipFile) Close() {
 	}
 }
 
-func (i *GzipFile) Next() (path, name string, r io.Reader, err error) {
+func (i *GzipFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if Debug {
 		fmt.Println("next() called")
 	}
 	if i.count == 0 {
 		i.count = 1
 		if i.gz_reader != nil {
-			return ".", "pt_1", i.gz_reader, nil
+			return ".", "pt_1", i.gz_reader, -1, nil
 		}
-		return ".", "pt_1", i.bgz_reader, nil
+		return ".", "pt_1", i.bgz_reader, -1, nil
 	}
 	if i.gz_reader == nil {
-		return "", "", nil, io.EOF
+		return "", "", nil, -1, io.EOF
 	}
 
 	if Debug {
@@ -178,9 +173,9 @@ func (i *GzipFile) Next() (path, name string, r io.Reader, err error) {
 	err = i.gz_reader.Reset(i.buf_reader)
 	if err != nil {
 		i.eof = true
-		return "", "", nil, err
+		return "", "", nil, -1, err
 	}
 	i.gz_reader.Multistream(false)
 	i.count++
-	return ".", fmt.Sprintf("pt_%d", i.count), i.gz_reader, nil
+	return ".", fmt.Sprintf("pt_%d", i.count), i.gz_reader, -1, nil
 }

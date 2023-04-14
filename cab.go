@@ -21,9 +21,10 @@ type CABFile struct {
 
 func init() {
 	formatTests = append(formatTests, formatTest{
-		Test: testCAB,
-		Read: readCAB,
-		Type: "cab",
+		Test:     testCAB,
+		Read:     readCAB,
+		Type:     "cab",
+		NeedSize: false,
 	})
 }
 
@@ -59,21 +60,15 @@ func readCAB(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *CABFile) Type() string {
-	return "cab"
-}
-
-func (i *CABFile) IsEOF() bool {
-	return i.eof
-}
-
+func (i *CABFile) Type() string { return "cab" }
+func (i *CABFile) IsEOF() bool  { return i.eof }
 func (c *CABFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *CABFile) Next() (dir, name string, r io.Reader, err error) {
+func (i *CABFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	if i.first_r != nil {
 		r = i.first_r
 		i.first_r = nil
@@ -90,6 +85,7 @@ func (i *CABFile) Next() (dir, name string, r io.Reader, err error) {
 	if err != nil {
 		return
 	}
+	size = finfo.Size()
 	dir, name = path.Split(finfo.Name())
 	return
 }

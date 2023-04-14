@@ -64,22 +64,16 @@ func readZstd(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *ZstdFile) Type() string {
-	return "zstd"
-}
+func (i *ZstdFile) Type() string { return "zstd" }
+func (i *ZstdFile) IsEOF() bool  { return i.eof }
+func (c *ZstdFile) Close()       {}
 
-func (i *ZstdFile) IsEOF() bool {
-	return i.eof
-}
-
-func (c *ZstdFile) Close() {
-}
-
-func (i *ZstdFile) Next() (path, name string, r io.Reader, err error) {
+func (i *ZstdFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if i.count == 0 {
 		i.count = 1
 		i.eof = true
-		return ".", "pt_1", i.z_reader, nil
+		return ".", "pt_1", i.z_reader, -1, nil
 	}
-	return "", "", nil, io.EOF
+	err = io.EOF
+	return
 }

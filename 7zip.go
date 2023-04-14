@@ -18,9 +18,10 @@ type SevenZipFile struct {
 
 func init() {
 	formatTests = append(formatTests, formatTest{
-		Test: test7Zip,
-		Read: read7Zip,
-		Type: "7zip",
+		Test:     test7Zip,
+		Read:     read7Zip,
+		Type:     "7zip",
+		NeedSize: true,
 	})
 }
 
@@ -31,6 +32,9 @@ func test7Zip(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	return bytes.Compare(buf, []byte{0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C}) == 0
 }
+
+func (i *SevenZipFile) Type() string { return "7zip" }
+func (i *SevenZipFile) IsEOF() bool  { return i.eof }
 
 func read7Zip(tr *tease.Reader, size int64) (Archive, error) {
 	tr.Seek(0, io.SeekStart)
@@ -55,25 +59,18 @@ func read7Zip(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *SevenZipFile) Type() string {
-	return "7zip"
-}
-
-func (i *SevenZipFile) IsEOF() bool {
-	return i.eof
-}
-
 func (c *SevenZipFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *SevenZipFile) Next() (dir, name string, r io.Reader, err error) {
+func (i *SevenZipFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var f *sevenzip.File
 	for {
 		if i.count >= len(i.z_reader.File) {
-			return "", "", nil, io.EOF
+			err = io.EOF
+			return
 		}
 		f = i.z_reader.File[i.count]
 		i.count++
@@ -84,8 +81,9 @@ func (i *SevenZipFile) Next() (dir, name string, r io.Reader, err error) {
 
 	r, err = f.Open()
 	if err != nil {
-		return "", "", nil, err
+		return
 	}
+	size = int64(f.UncompressedSize)
 	dir, name = path.Split(f.Name)
 	//fmt.Println("path", dir, name, "f.Name=", f.Name)
 	return

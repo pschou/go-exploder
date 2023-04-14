@@ -17,9 +17,10 @@ type Bzip2File struct {
 
 func init() {
 	formatTests = append(formatTests, formatTest{
-		Test: testBzip2,
-		Read: readBzip2,
-		Type: "bzip2",
+		Test:     testBzip2,
+		Read:     readBzip2,
+		Type:     "bzip2",
+		NeedSize: false,
 	})
 }
 
@@ -57,22 +58,19 @@ func readBzip2(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *Bzip2File) Type() string {
-	return "bzip2"
-}
-
-func (i *Bzip2File) IsEOF() bool {
-	return i.eof
-}
+func (i *Bzip2File) Type() string { return "bzip2" }
+func (i *Bzip2File) IsEOF() bool  { return i.eof }
 
 func (c *Bzip2File) Close() {
 }
 
-func (i *Bzip2File) Next() (path, name string, r io.Reader, err error) {
+func (i *Bzip2File) Next() (path, name string, r io.Reader, size int64, err error) {
+	size = -1
 	if i.count == 0 {
 		i.count = 1
 		i.eof = true
-		return ".", "pt_1", i.z_reader, nil
+		return ".", "pt_1", i.z_reader, -1, nil
 	}
-	return "", "", nil, io.EOF
+	err = io.EOF
+	return
 }

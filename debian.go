@@ -61,13 +61,8 @@ func readDEB(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *DEBFile) Type() string {
-	return "debian"
-}
-
-func (i *DEBFile) IsEOF() bool {
-	return i.eof
-}
+func (i *DEBFile) Type() string { return "debian" }
+func (i *DEBFile) IsEOF() bool  { return i.eof }
 
 func (c *DEBFile) Close() {
 	//if c.z_reader != nil {
@@ -75,7 +70,7 @@ func (c *DEBFile) Close() {
 	//}
 }
 
-func (i *DEBFile) Next() (dir, name string, r io.Reader, err error) {
+func (i *DEBFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var ar_ent *deb.ArEntry
 	for {
 		if i.ar_ent != nil {
@@ -84,11 +79,12 @@ func (i *DEBFile) Next() (dir, name string, r io.Reader, err error) {
 		} else {
 			ar_ent, err = i.ar.Next()
 			if err == io.EOF {
-				return "", "", nil, err
+				return
 			}
 		}
 		if ar_ent == nil {
-			return "", "", nil, fmt.Errorf("Invalid DEB file")
+			err = fmt.Errorf("Invalid DEB file")
+			return
 		}
 		if ar_ent.IsTarfile() {
 			break
@@ -97,14 +93,16 @@ func (i *DEBFile) Next() (dir, name string, r io.Reader, err error) {
 	var c interface{}
 	_, c, err = ar_ent.Tarfile()
 	if err != nil {
-		return "", "", nil, err
+		return
 	}
 	if ir, ok := (c).(io.Reader); ok {
 		r = ir
 	} else {
-		return "", "", nil, io.EOF
+		err = io.EOF
+		return
 	}
 	dir = "."
 	name = ar_ent.Name
+	size = ar_ent.Size
 	return
 }
