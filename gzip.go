@@ -13,7 +13,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type GzipFile struct {
+type gZipFile struct {
 	buf_reader *bufio.Reader
 	gz_reader  *gzip.Reader
 	bgz_reader *bgzf.Reader
@@ -40,7 +40,7 @@ func testGzip(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{0x1f, 0x8b}) == 0
 }
 
-func readGzip(tr *tease.Reader, size int64) (Archive, error) {
+func readGzip(tr *tease.Reader, size int64) (archive, error) {
 	a, err := readBlockGzip(tr, size)
 	if err != nil {
 		//fmt.Println("err:", err)
@@ -52,7 +52,7 @@ func readGzip(tr *tease.Reader, size int64) (Archive, error) {
 	return a, err
 }
 
-func readStandardGzip(tr *tease.Reader, size int64) (Archive, error) {
+func readStandardGzip(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	br := bufio.NewReader(tr)
 	gzr, err := gzip.NewReader(br)
@@ -81,7 +81,7 @@ func readStandardGzip(tr *tease.Reader, size int64) (Archive, error) {
 	}
 	gzr.Multistream(false)
 
-	ret := GzipFile{
+	ret := gZipFile{
 		buf_reader: br,
 		gz_reader:  gzr,
 		tr_reader:  tr,
@@ -92,7 +92,7 @@ func readStandardGzip(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func readBlockGzip(tr *tease.Reader, size int64) (Archive, error) {
+func readBlockGzip(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	br := bufio.NewReader(tr)
 	gzr, err := bgzf.NewReader(br, 1)
@@ -121,7 +121,7 @@ func readBlockGzip(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	ret := GzipFile{
+	ret := gZipFile{
 		buf_reader: br,
 		bgz_reader: gzr,
 		tr_reader:  tr,
@@ -132,9 +132,9 @@ func readBlockGzip(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *GzipFile) Type() string { return i.gz_type }
-func (i *GzipFile) IsEOF() bool  { return i.eof }
-func (c *GzipFile) Close() {
+func (i *gZipFile) Type() string { return i.gz_type }
+func (i *gZipFile) IsEOF() bool  { return i.eof }
+func (c *gZipFile) Close() {
 	if c.buf_reader != nil {
 		c.buf_reader.Reset(nil)
 	}
@@ -146,7 +146,7 @@ func (c *GzipFile) Close() {
 	}
 }
 
-func (i *GzipFile) Next() (path, name string, r io.Reader, size int64, err error) {
+func (i *gZipFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if Debug {
 		fmt.Println("next() called")
 	}

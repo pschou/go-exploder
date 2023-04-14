@@ -10,7 +10,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type SevenZipFile struct {
+type sevenZipFile struct {
 	z_reader *sevenzip.Reader
 	eof      bool
 	count    int
@@ -33,10 +33,10 @@ func test7Zip(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{0x37, 0x7A, 0xBC, 0xAF, 0x27, 0x1C}) == 0
 }
 
-func (i *SevenZipFile) Type() string { return "7zip" }
-func (i *SevenZipFile) IsEOF() bool  { return i.eof }
+func (i *sevenZipFile) Type() string { return "7zip" }
+func (i *sevenZipFile) IsEOF() bool  { return i.eof }
 
-func read7Zip(tr *tease.Reader, size int64) (Archive, error) {
+func read7Zip(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	if size < 10 {
 		size = 2048
@@ -49,7 +49,7 @@ func read7Zip(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	ret := SevenZipFile{
+	ret := sevenZipFile{
 		z_reader: zr,
 		eof:      false,
 	}
@@ -59,13 +59,13 @@ func read7Zip(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (c *SevenZipFile) Close() {
+func (c *sevenZipFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *SevenZipFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *sevenZipFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var f *sevenzip.File
 	for {
 		if i.count >= len(i.z_reader.File) {

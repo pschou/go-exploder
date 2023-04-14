@@ -26,7 +26,7 @@ import (
 )
 
 // Interface in which archives can be interfaced with directly
-type Archive interface {
+type archive interface {
 	Next() (name, path string, r io.Reader, size int64, err error)
 	IsEOF() bool
 	Close()
@@ -36,7 +36,7 @@ type Archive interface {
 // Interface to test known file formats
 type formatTest struct {
 	Test     func(*tease.Reader, string) bool
-	Read     func(*tease.Reader, int64) (Archive, error)
+	Read     func(*tease.Reader, int64) (archive, error)
 	NeedSize bool
 	Type     string
 }
@@ -49,17 +49,25 @@ var Debug bool
 // Explode the archive by looking at the file MagicBytes and then try that
 // archive reader so as to extract layers of archives all at once.
 //
-// Note: Some layers are represented in a single extraction, while others, like
-// tgz are actually two layers, a gzip on the first and a tar on the second.
+// Some layers are represented in a single extraction, while others, like tgz
+// are actually two layers, a gzip on the first and a tar on the second.  If a
+// file is unable to be extracted it will be saved as the original name and
+// bytes in the corresponding child folder.
 //
-// One must provide an io.Reader and the Size of provided reader for extraction.
+// One MUST provide an io.Reader and SHOULD provide the Size of provided reader
+// for extraction.  If the size is not known, use -1.
 //
-// Important:  If one is reading from a slow media source (like a disk), a bufio.Buffer
-// will help performance.  Something like this:
+// The Explode can work on io.Reader alone, such as an incoming stream from a
+// web upload.  In such cases the size can be set to -1 if it is unknown.
+//
+// The filePath is the directory in which the extracted content should be placed.
+//
+// Important:  If one is reading from a slow media source (like a disk), a
+// bufio.Buffer will help performance.  Something like this:
 //
 //   fh, err := os.Open("myArchive")
 //   stat, _ := fh.Stat()
-//   err = exploder.Explode(data, bufio.NewReader(file), stat.Size(), -1)
+//   err = exploder.Explode(data, bufio.NewReader(file), stat.Size(), 10)
 func Explode(filePath string, in io.Reader, size int64, recursion int) (err error) {
 	if recursion == 0 {
 		// If we have reached the max depth, print out any file / archive without testing

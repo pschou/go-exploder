@@ -11,7 +11,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type CABFile struct {
+type cABFile struct {
 	z_reader    *io.Reader
 	cab         *cabfile.Cabinet
 	eof         bool
@@ -36,7 +36,7 @@ func testCAB(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{0x4D, 0x53, 0x43, 0x46}) == 0
 }
 
-func readCAB(tr *tease.Reader, size int64) (Archive, error) {
+func readCAB(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	cab, err := cabfile.New(tr)
 	if err != nil {
@@ -46,7 +46,7 @@ func readCAB(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	ret := CABFile{
+	ret := cABFile{
 		eof: false,
 		cab: cab,
 	}
@@ -60,15 +60,15 @@ func readCAB(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *CABFile) Type() string { return "cab" }
-func (i *CABFile) IsEOF() bool  { return i.eof }
-func (c *CABFile) Close() {
+func (i *cABFile) Type() string { return "cab" }
+func (i *cABFile) IsEOF() bool  { return i.eof }
+func (c *cABFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *CABFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *cABFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	if i.first_r != nil {
 		r = i.first_r
 		i.first_r = nil

@@ -10,7 +10,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type RARFile struct {
+type rARFile struct {
 	z_reader *rardecode.Reader
 	hdr      *rardecode.FileHeader
 	eof      bool
@@ -32,7 +32,7 @@ func testRAR(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{0x52, 0x61, 0x72, 0x21, 0x1A, 0x07}) == 0
 }
 
-func readRAR(tr *tease.Reader, size int64) (Archive, error) {
+func readRAR(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	if size < 10 {
 		size = 2048
@@ -50,7 +50,7 @@ func readRAR(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	ret := RARFile{
+	ret := rARFile{
 		z_reader: zr,
 		eof:      false,
 		hdr:      hdr,
@@ -60,15 +60,15 @@ func readRAR(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *RARFile) Type() string { return "rar" }
-func (i *RARFile) IsEOF() bool  { return i.eof }
-func (c *RARFile) Close() {
+func (i *rARFile) Type() string { return "rar" }
+func (i *rARFile) IsEOF() bool  { return i.eof }
+func (c *rARFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *RARFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *rARFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *rardecode.FileHeader
 	for {
 		if i.hdr != nil {

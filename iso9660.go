@@ -43,7 +43,7 @@ func testISO9660(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{'C', 'D', '0', '0', '1'}) == 0
 }
 
-func readISO9660(tr *tease.Reader, size int64) (Archive, error) {
+func readISO9660(tr *tease.Reader, size int64) (archive, error) {
 	img, err := iso9660.OpenImage(tr)
 	if err != nil {
 		return nil, fmt.Errorf(" error opening iso image: %s", err)

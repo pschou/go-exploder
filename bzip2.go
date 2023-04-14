@@ -9,7 +9,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type Bzip2File struct {
+type bZip2File struct {
 	z_reader io.Reader
 	eof      bool
 	count    int
@@ -32,7 +32,7 @@ func testBzip2(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{0x42, 0x5A, 0x68}) == 0
 }
 
-func readBzip2(tr *tease.Reader, size int64) (Archive, error) {
+func readBzip2(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	r := bzip2.NewReader(tr)
 
@@ -49,7 +49,7 @@ func readBzip2(tr *tease.Reader, size int64) (Archive, error) {
 	}
 
 	tr.Seek(0, io.SeekStart)
-	ret := Bzip2File{
+	ret := bZip2File{
 		z_reader: bzip2.NewReader(tr),
 		eof:      false,
 	}
@@ -58,13 +58,13 @@ func readBzip2(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *Bzip2File) Type() string { return "bzip2" }
-func (i *Bzip2File) IsEOF() bool  { return i.eof }
+func (i *bZip2File) Type() string { return "bzip2" }
+func (i *bZip2File) IsEOF() bool  { return i.eof }
 
-func (c *Bzip2File) Close() {
+func (c *bZip2File) Close() {
 }
 
-func (i *Bzip2File) Next() (path, name string, r io.Reader, size int64, err error) {
+func (i *bZip2File) Next() (path, name string, r io.Reader, size int64, err error) {
 	size = -1
 	if i.count == 0 {
 		i.count = 1

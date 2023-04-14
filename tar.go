@@ -9,7 +9,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type TarFile struct {
+type tARFile struct {
 	a_reader *tar.Reader
 	eof      bool
 	hdr      *tar.Header
@@ -34,7 +34,7 @@ func testTar(tr *tease.Reader, _ string) bool {
 	return err == nil
 }
 
-func readTar(tr *tease.Reader, size int64) (Archive, error) {
+func readTar(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	ar := tar.NewReader(tr)
 	hdr, err := ar.Next()
@@ -45,7 +45,7 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	ret := TarFile{
+	ret := tARFile{
 		a_reader: ar,
 		eof:      false,
 		size:     size,
@@ -56,16 +56,16 @@ func readTar(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *TarFile) Type() string { return "tar" }
-func (i *TarFile) IsEOF() bool  { return i.eof }
+func (i *tARFile) Type() string { return "tar" }
+func (i *tARFile) IsEOF() bool  { return i.eof }
 
-func (c *TarFile) Close() {
+func (c *tARFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *TarFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *tARFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *tar.Header
 	for {
 		if i.hdr != nil {

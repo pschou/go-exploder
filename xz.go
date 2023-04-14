@@ -9,7 +9,7 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-type XZFile struct {
+type xZFile struct {
 	z_reader *xz.Reader
 	eof      bool
 	count    int
@@ -31,7 +31,7 @@ func testXZ(tr *tease.Reader, _ string) bool {
 	return bytes.Compare(buf, []byte{0xFD, 0x37, 0x7A, 0x58, 0x5A, 0x00}) == 0
 }
 
-func readXZ(tr *tease.Reader, size int64) (Archive, error) {
+func readXZ(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	r, err := xz.NewReader(tr)
 	if err != nil {
@@ -41,7 +41,7 @@ func readXZ(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 
-	ret := XZFile{
+	ret := xZFile{
 		z_reader: r,
 		eof:      false,
 	}
@@ -50,11 +50,11 @@ func readXZ(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *XZFile) Type() string { return "xz" }
-func (i *XZFile) IsEOF() bool  { return i.eof }
-func (c *XZFile) Close()       {}
+func (i *xZFile) Type() string { return "xz" }
+func (i *xZFile) IsEOF() bool  { return i.eof }
+func (c *xZFile) Close()       {}
 
-func (i *XZFile) Next() (path, name string, r io.Reader, size int64, err error) {
+func (i *xZFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if i.count == 0 {
 		i.count = 1
 		i.eof = true

@@ -9,7 +9,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type LzmaFile struct {
+type lzmaFile struct {
 	z_reader io.Reader
 	eof      bool
 	count    int
@@ -43,7 +43,7 @@ func testLzma(tr *tease.Reader, _ string) bool {
 	return false
 }
 
-func readLzma(tr *tease.Reader, size int64) (Archive, error) {
+func readLzma(tr *tease.Reader, size int64) (archive, error) {
 	tr.Seek(0, io.SeekStart)
 	r := lzma.NewReader(tr)
 
@@ -61,7 +61,7 @@ func readLzma(tr *tease.Reader, size int64) (Archive, error) {
 
 	tr.Seek(0, io.SeekStart)
 	r = lzma.NewReader(tr)
-	ret := LzmaFile{
+	ret := lzmaFile{
 		z_reader: r,
 		eof:      false,
 	}
@@ -70,11 +70,11 @@ func readLzma(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *LzmaFile) Type() string { return "lzma" }
-func (i *LzmaFile) IsEOF() bool  { return i.eof }
-func (c *LzmaFile) Close()       {}
+func (i *lzmaFile) Type() string { return "lzma" }
+func (i *lzmaFile) IsEOF() bool  { return i.eof }
+func (c *lzmaFile) Close()       {}
 
-func (i *LzmaFile) Next() (path, name string, r io.Reader, size int64, err error) {
+func (i *lzmaFile) Next() (path, name string, r io.Reader, size int64, err error) {
 	if i.count == 0 {
 		i.count = 1
 		i.eof = true

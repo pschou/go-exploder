@@ -10,7 +10,7 @@ import (
 	deb "pault.ag/go/debian/deb"
 )
 
-type DEBFile struct {
+type dEBFile struct {
 	ar     *deb.Ar
 	ar_ent *deb.ArEntry
 	eof    bool
@@ -37,7 +37,7 @@ func testDEB(tr *tease.Reader, fn string) bool {
 		0x21, 0x3C, 0x61, 0x72, 0x63, 0x68, 0x3E, 0x0A}) == 0
 }
 
-func readDEB(tr *tease.Reader, size int64) (Archive, error) {
+func readDEB(tr *tease.Reader, size int64) (archive, error) {
 
 	ar, err := deb.LoadAr(tr)
 	if err != nil {
@@ -51,7 +51,7 @@ func readDEB(tr *tease.Reader, size int64) (Archive, error) {
 		return nil, err
 	}
 	tr.Pipe()
-	ret := DEBFile{
+	ret := dEBFile{
 		ar:     ar,
 		ar_ent: ar_ent,
 		eof:    false,
@@ -61,16 +61,16 @@ func readDEB(tr *tease.Reader, size int64) (Archive, error) {
 	return &ret, nil
 }
 
-func (i *DEBFile) Type() string { return "debian" }
-func (i *DEBFile) IsEOF() bool  { return i.eof }
+func (i *dEBFile) Type() string { return "debian" }
+func (i *dEBFile) IsEOF() bool  { return i.eof }
 
-func (c *DEBFile) Close() {
+func (c *dEBFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *DEBFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *dEBFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var ar_ent *deb.ArEntry
 	for {
 		if i.ar_ent != nil {
