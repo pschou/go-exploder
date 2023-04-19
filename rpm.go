@@ -13,7 +13,7 @@ import (
 	"github.com/ulikunitz/xz"
 )
 
-type rPMFile struct {
+type rpmFile struct {
 	reader      io.Reader
 	cpio_reader *cpio.Reader
 	pkg         *rpm.Package
@@ -34,7 +34,6 @@ func testRPM(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 4)
 	tr.Read(buf)
-	tr.Seek(0, io.SeekStart)
 	return bytes.Compare(buf, []byte{0xED, 0xAB, 0xEE, 0xDB}) == 0
 }
 
@@ -77,7 +76,7 @@ func readRPM(tr *tease.Reader, size int64) (archive, error) {
 	// Attach a reader to unarchive each file in the payload
 	cpioReader := cpio.NewReader(reader)
 
-	ret := rPMFile{
+	ret := rpmFile{
 		reader:      reader,
 		cpio_reader: cpioReader,
 		eof:         false,
@@ -89,15 +88,15 @@ func readRPM(tr *tease.Reader, size int64) (archive, error) {
 	return &ret, nil
 }
 
-func (i *rPMFile) Type() string { return "rpm" }
-func (i *rPMFile) IsEOF() bool  { return i.eof }
-func (c *rPMFile) Close() {
+func (i *rpmFile) Type() string { return "rpm" }
+func (i *rpmFile) IsEOF() bool  { return i.eof }
+func (c *rpmFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *rPMFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *rpmFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *cpio.Header
 	for {
 		// Move to the next file in the archive

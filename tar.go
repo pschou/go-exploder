@@ -9,7 +9,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type tARFile struct {
+type tarFile struct {
 	a_reader *tar.Reader
 	eof      bool
 	hdr      *tar.Header
@@ -30,7 +30,6 @@ func testTar(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	ar := tar.NewReader(tr)
 	_, err := ar.Next()
-	tr.Seek(0, io.SeekStart)
 	return err == nil
 }
 
@@ -45,7 +44,7 @@ func readTar(tr *tease.Reader, size int64) (archive, error) {
 		return nil, err
 	}
 
-	ret := tARFile{
+	ret := tarFile{
 		a_reader: ar,
 		eof:      false,
 		size:     size,
@@ -56,16 +55,16 @@ func readTar(tr *tease.Reader, size int64) (archive, error) {
 	return &ret, nil
 }
 
-func (i *tARFile) Type() string { return "tar" }
-func (i *tARFile) IsEOF() bool  { return i.eof }
+func (i *tarFile) Type() string { return "tar" }
+func (i *tarFile) IsEOF() bool  { return i.eof }
 
-func (c *tARFile) Close() {
+func (c *tarFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *tARFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *tarFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *tar.Header
 	for {
 		if i.hdr != nil {

@@ -35,10 +35,10 @@ type archive interface {
 
 // Interface to test known file formats
 type formatTest struct {
-	Test     func(*tease.Reader, string) bool
-	Read     func(*tease.Reader, int64) (archive, error)
-	NeedSize bool
-	Type     string
+	Test             func(*tease.Reader, string) bool
+	Read             func(*tease.Reader, int64) (archive, error)
+	NeedSize, Double bool
+	Type             string
 }
 
 // A slice with all the formats checking in as available, see the init() in every go file.
@@ -68,18 +68,44 @@ var Debug bool
 //   fh, err := os.Open("myArchive")
 //   stat, _ := fh.Stat()
 //   err = exploder.Explode(data, bufio.NewReader(file), stat.Size(), 10)
-func Explode(filePath string, in io.Reader, size int64, recursion int) (err error) {
+func Explode(basePath string, in io.Reader, size int64, recursion int) (err error) {
+	return explodeIt(
+		func(filePath string, r *FileReader) error {
+			outPath := path.Join(basePath, filePath)
+			dir, _ := path.Split(outPath)
+			ensureDir(dir)
+			out, err := os.Create(outPath)
+			if err != nil {
+				log.Panic(err)
+				//return err
+			}
+			defer out.Close()
+			_, err = io.Copy(out, r)
+			if err != nil {
+				log.Panic(err)
+			}
+			return err
+		},
+		"", in, size, recursion)
+}
+
+// Similar to the Explode, but provides a custom call back function for each file.
+func ExplodeFunc(HandleFile func(filePath string, r *FileReader) error, in io.Reader, size int64, recursion int) (err error) {
+	return explodeIt(HandleFile, "", in, size, recursion)
+}
+
+func explodeIt(writeFile func(filePath string, r *FileReader) error, filePath string, in io.Reader, size int64, recursion int) (err error) {
 	if recursion == 0 {
+		if Debug {
+			fmt.Println("reached last level of recusion", filePath)
+		}
 		// If we have reached the max depth, print out any file / archive without testing
-		var n int64
-		n, err = writeFile(filePath, in)
-		if err != nil && Debug {
-			fmt.Println("Copy err:", err)
+		fr := &FileReader{r: in, size: size}
+		err = writeFile(filePath, fr)
+		if err != nil {
+			return
 		}
-		if size >= 0 && n != size {
-			log.Println("Reader.MaxDepth: copied file size does not match")
-		}
-		return
+		return fr.finalize(filePath)
 	}
 
 	tr := tease.NewReader(in)
@@ -100,13 +126,15 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		if Debug {
 			fmt.Println("no archive match for", filePath)
 		}
-		var n int64
 		tr.Seek(0, io.SeekStart)
 		tr.Pipe()
-		n, err = writeFile(filePath, tr)
-		if size >= 0 && n != size {
-			log.Println("copied file size,", n, ", and expected,", size, ", do not match")
+
+		fr := &FileReader{r: tr, size: size}
+		err = writeFile(filePath, fr)
+		if err != nil {
+			return
 		}
+		return fr.finalize(filePath)
 	case 1:
 		// We found only one potential archive match, go ahead and explode it.
 		tr.Seek(0, io.SeekStart)
@@ -116,9 +144,9 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		}
 		if ft.NeedSize && size < 0 {
 			if Debug {
-				fmt.Println("***creating temp file***")
+				fmt.Println("create temp", filePath)
 			}
-			f, err := os.CreateTemp("", "exploder_zip.*.zip")
+			f, err := os.CreateTemp("", "exploder")
 			if err != nil {
 				return err
 			}
@@ -129,20 +157,15 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 			}()
 			tr.Pipe()
 			size, err = io.Copy(f, tr)
+			if err != nil {
+				return err
+			}
 			f.Seek(0, io.SeekStart)
 			tr = tease.NewReader(bufio.NewReader(f))
 		}
 
 		if arch, err := ft.Read(tr, size); err == nil {
-			if err != nil {
-				fmt.Println("Read test failed for", arch.Type(), "file", filePath)
-				fmt.Println("err:", err)
-				tr.Seek(0, io.SeekStart)
-				tr.Pipe()
-				_, err = writeFile(filePath, tr)
-				return err
-			}
-			//defer arch.Close()
+			defer arch.Close()
 			for !arch.IsEOF() {
 				a_dir, a_file, r, to_read, err := arch.Next()
 				if lr, ok := (r).(*io.LimitedReader); ok {
@@ -150,21 +173,29 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 				}
 
 				if err != nil {
+					if Debug {
+						fmt.Println("next failed for", filePath, err)
+					}
 					break
 				}
 
 				// If we have another file, try exploding that
-				Explode(path.Join(filePath, a_dir, a_file), r, to_read, recursion-1)
+				explodeIt(writeFile, path.Join(filePath, a_dir, a_file), bufio.NewReader(r), to_read, recursion-1)
 			}
 		} else {
-			fmt.Println("Warning: MagicBytes indicated and archive (", ft.Type, ") but failed to expand:", err)
-			fmt.Println("  ", filePath)
+			if Debug {
+				fmt.Println("Warning: MagicBytes indicated and archive (", ft.Type, ") but failed to expand:", err)
+				fmt.Println("  ", filePath)
+			}
 			tr.Seek(0, io.SeekStart)
 			tr.Pipe()
-			_, err = writeFile(filePath, tr)
-			if err != nil && Debug {
-				fmt.Println("Copy err:", err)
+
+			fr := &FileReader{r: tr, size: size}
+			err = writeFile(filePath, fr)
+			if err != nil {
+				return err
 			}
+			return fr.finalize(filePath)
 		}
 	default:
 		if Debug {
@@ -175,26 +206,14 @@ func Explode(filePath string, in io.Reader, size int64, recursion int) (err erro
 		}
 		tr.Seek(0, io.SeekStart)
 		tr.Pipe()
-		_, err = writeFile(filePath, tr)
-		if err != nil && Debug {
-			fmt.Println("Copy err:", err)
+
+		fr := &FileReader{r: tr, size: size}
+		err = writeFile(filePath, fr)
+		if err != nil {
+			return err
 		}
+		return fr.finalize(filePath)
 	}
 
 	return
-}
-
-func writeFile(filePath string, in io.Reader) (int64, error) {
-	dir, _ := path.Split(filePath)
-	if Debug {
-		fmt.Println("Writing out file", filePath, "in", dir)
-	}
-	ensureDir(dir)
-	out, err := os.Create(filePath)
-	if err != nil {
-		log.Println("= Error creating file", filePath, "err:", err)
-		return 0, err
-	}
-	defer out.Close()
-	return io.Copy(out, in)
 }

@@ -109,8 +109,8 @@ github.com/pschou/go-debian v0.12.1-0.20220712183321-10c93101ec38 h1:xulXWtxuksK
 github.com/pschou/go-debian v0.12.1-0.20220712183321-10c93101ec38/go.mod h1:mLGXvkSUptUk8qv2gNrQ1vyqxTcWKn9UzbheKNEcKho=
 github.com/pschou/go-iso9660 v0.0.0-20230221023640-dd14e582d10a h1:RouehOpfiWdbzk/SGs288NKrJJ15MrlGsHve1Lp4UNY=
 github.com/pschou/go-iso9660 v0.0.0-20230221023640-dd14e582d10a/go.mod h1:zGbw61eqxcN0qoi7QqrlOCCrPrwSZGz/lB/mxBt6joA=
-github.com/pschou/go-tease v0.0.0-20221025010209-0509f9668b80 h1:0E55xkCymtftWH/VzMj+ATOCd+nqXH+g3rso5XDJpEE=
-github.com/pschou/go-tease v0.0.0-20221025010209-0509f9668b80/go.mod h1:VWAgQXenDZ5ZVrEDkSCeuu/uZfEV+7wtJisa0Ja9teE=
+github.com/pschou/go-tease v0.0.0-20230415042035-bc38eaa1de66 h1:m0BL+tfZZcr46Iw8ahAx8ifPQXEbb8HKu3weyHhIsco=
+github.com/pschou/go-tease v0.0.0-20230415042035-bc38eaa1de66/go.mod h1:VWAgQXenDZ5ZVrEDkSCeuu/uZfEV+7wtJisa0Ja9teE=
 github.com/rogpeppe/go-internal v1.3.0/go.mod h1:M8bDsm7K2OlrFYOpmOWEs/qY81heoFRclV5y23lUDJ4=
 github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd/go.mod h1:hPqNNc0+uJM6H+SuU8sEs5K5IQeKccPqeSjfgcKGgPk=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

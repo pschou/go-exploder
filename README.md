@@ -6,15 +6,16 @@ Archive formats supported:
   - 7zip
   - bzip2
   - cab
+  - cpio
   - debian
-  - gzip / bgzf / apk
+  - gzip bgzf apk
   - iso9660
   - lzma
   - rar
   - rpm
   - tar
   - xz
-  - zip (and similar)
+  - zip aar docx epub ipa jar kmz maff msix odp ods odt pk3 pk4 pptx usdz vsdx xlsx xpi
   - zstd
 
 # Example

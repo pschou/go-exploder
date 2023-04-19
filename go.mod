@@ -12,7 +12,7 @@ require (
 	github.com/nwaples/rardecode v1.1.3
 	github.com/pschou/go-cabfile v0.0.0-20220802190232-c3d1704d4fb2
 	github.com/pschou/go-iso9660 v0.0.0-20230221023640-dd14e582d10a
-	github.com/pschou/go-tease v0.0.0-20221025010209-0509f9668b80
+	github.com/pschou/go-tease v0.0.0-20230415042035-bc38eaa1de66
 	github.com/ulikunitz/xz v0.5.11
 	pault.ag/go/debian v0.12.0
 )

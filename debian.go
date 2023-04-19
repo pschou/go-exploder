@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/pschou/go-tease"
 	deb "pault.ag/go/debian/deb"
@@ -26,9 +25,6 @@ func init() {
 }
 
 func testDEB(tr *tease.Reader, fn string) bool {
-	if len(fn) > 4 && strings.EqualFold(fn[len(fn)-4:], ".deb") {
-		return false
-	}
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 8)
 	tr.Read(buf)

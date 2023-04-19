@@ -10,7 +10,7 @@ import (
 	"github.com/pschou/go-tease"
 )
 
-type rARFile struct {
+type rarFile struct {
 	z_reader *rardecode.Reader
 	hdr      *rardecode.FileHeader
 	eof      bool
@@ -50,7 +50,7 @@ func readRAR(tr *tease.Reader, size int64) (archive, error) {
 		return nil, err
 	}
 
-	ret := rARFile{
+	ret := rarFile{
 		z_reader: zr,
 		eof:      false,
 		hdr:      hdr,
@@ -60,15 +60,15 @@ func readRAR(tr *tease.Reader, size int64) (archive, error) {
 	return &ret, nil
 }
 
-func (i *rARFile) Type() string { return "rar" }
-func (i *rARFile) IsEOF() bool  { return i.eof }
-func (c *rARFile) Close() {
+func (i *rarFile) Type() string { return "rar" }
+func (i *rarFile) IsEOF() bool  { return i.eof }
+func (c *rarFile) Close() {
 	//if c.z_reader != nil {
 	//	c.z_reader.Close()
 	//}
 }
 
-func (i *rARFile) Next() (dir, name string, r io.Reader, size int64, err error) {
+func (i *rarFile) Next() (dir, name string, r io.Reader, size int64, err error) {
 	var hdr *rardecode.FileHeader
 	for {
 		if i.hdr != nil {

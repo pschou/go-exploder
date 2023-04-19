@@ -20,21 +20,23 @@ func init() {
 	formatTests = append(formatTests, formatTest{
 		Test:     testZip,
 		Read:     readZip,
-		Type:     "zip",
+		Type:     "zip / jar / war / ear / jpi / hpi",
 		NeedSize: true,
 	})
 }
 
 func testZip(tr *tease.Reader, fn string) bool {
 	tr.Seek(0, io.SeekStart)
-	buf := make([]byte, 4)
-	tr.Read(buf)
-	tr.Seek(0, io.SeekStart)
-	return bytes.Compare(buf, []byte{0x50, 0x4b, 0x03, 0x04}) == 0
+	buf := make([]byte, 30)
+	n, _ := tr.Read(buf)
+	if n < 30 {
+		return false
+	}
+	return bytes.Compare(buf, []byte{0x50, 0x4b, 0x03, 0x04}) == 0 && buf[9] == 0 &&
+		(buf[8] == 8 || buf[8] == 0)
 }
 
 func readZip(tr *tease.Reader, size int64) (archive, error) {
-	tr.Seek(0, io.SeekStart)
 	zr, err := zip.NewReader(tr, size)
 	if err != nil {
 		if Debug {
@@ -48,8 +50,8 @@ func readZip(tr *tease.Reader, size int64) (archive, error) {
 		eof:      false,
 	}
 
-	tr.Seek(0, io.SeekStart)
-	tr.Pipe()
+	//tr.Seek(0, io.SeekStart)
+	//tr.Pipe()
 	return &ret, nil
 }
 
@@ -57,9 +59,9 @@ func (i *zipFile) Type() string { return "zip" }
 func (i *zipFile) IsEOF() bool  { return i.eof }
 
 func (c *zipFile) Close() {
-	//if c.z_reader != nil {
-	//	c.z_reader.Close()
-	//}
+	/*if c.z_reader != nil {
+		c.z_reader.Close()
+	}*/
 }
 
 func (i *zipFile) Next() (dir, name string, r io.Reader, size int64, err error) {

@@ -27,7 +27,6 @@ func testZstd(tr *tease.Reader, _ string) bool {
 	tr.Seek(0, io.SeekStart)
 	buf := make([]byte, 4)
 	tr.Read(buf)
-	tr.Seek(0, io.SeekStart)
 	return bytes.Compare(buf, []byte{0xFD, 0x2F, 0xB5, 0x28}) == 0
 }
 
